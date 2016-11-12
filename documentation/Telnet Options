@@ -1,0 +1,13 @@
+Unhandled Options
+
+M   RFC     Service
+1   857     Echo (yes/no)
+3   858     Suppress Go-Ahead
+31  1073    Negotiate About Window Size
+34  1184    Linemode || NO
+
+
+
+Telnet Option: (1) ECHO
+
+    

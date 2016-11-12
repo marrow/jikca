@@ -1,0 +1,187 @@
+syntax=[r'^(?:al|alias|refer to) (?:the )?([^=]+) ?(?:=) ?(.+)$', r'^(?:al|alias|refer to) (?:the )?(\w+) ?(?:=|as )?(.+)$']
+def alias(self, source, target):
+    try:
+        source = self.find(source)
+        
+        for i in target.split("|"):
+            db.Alias(target=source, name=i.strip())
+        
+        db.session.flush()
+        
+        self.write("Aliases updated.")
+    
+    except:
+        peer = self.transport.getPeer()
+        log.exception("An error was encountered when %s:%d attempted to update aliases.", peer.host, peer.port)
+        self.write("Unable to create alias.")
+    
+    return source
+
+
+
+syntax=[r'^(?:\? ?|ex |examine )(?:the )?(.+)$']
+from datetime import datetime
+
+def examine(self, target):
+    
+    try:
+        target = self.find(target)
+
+        self.write("%10s %s (%s #%d)", "Name:", target.name, target.__class__.__name__, target.id)
+        self.write("%10s %s", "Aliases:", ", ".join([i.name for i in target.aliases]))
+        self.write("%10s %r", "Owner:", None)
+        
+        if target.flags:
+            self.write("%10s %s", "Flags:", ", ".join(target.flaglist))
+        
+        self.write("%10s %r", "Accessed:", datetime.now())
+        self.write("%10s %r", "Modified:", datetime.now())
+        self.write("%10s %r", "Created:", datetime.now())
+
+        if target.description:
+            self.write("-" * 9 + " Description " + "-" * (78-9-2-11))
+            self.wrap(target.description)
+        
+        if target.contents:
+            self.write("-" * 9 + " Contents " + "-" * (78-9-2-8))
+            for obj in target.contents:
+                self.write(repr(obj))
+        
+        if hasattr(target, 'code') and target.code:
+            self.write("-" * 9 + " Code " + "-" * (78-9-2-4))
+            self.write(target.code)
+        
+        if target.description or target.contents or (hasattr(target, 'code') and target.code):
+            self.write("-" * 78)
+    
+    except:
+        peer = self.transport.getPeer()
+        log.exception("An error was encountered when %s:%d attempted to examine an object.", peer.host, peer.port)
+        self.write("Unable to examine that object.")
+    
+    return target
+
+
+
+syntax=[r'^(?:\?|roll |throw )([\S]+)$']
+from random import randrange as rand
+import re
+
+parser = re.compile(r'(\d+)d(\d+)((.)(\d+))?((.)(\d+))?((.)(\d+))?((.)(\d+))?((.)(\d+))?((.)(\d+))?')
+
+def throw(dice):
+    value = parser.split(dice)
+    result = 0
+    
+    del value[0]
+    reps = int(value.pop(0))
+    dice = int(value.pop(0))
+    print repr(value)
+    
+    for i in xrange(0, reps):
+        result += rand(0, dice) + 1
+    
+    while len(value) > 1:
+        value.pop(0)
+        op = value.pop(0)
+        if op == "+": result += int(value.pop(0))
+        if op == "-": result -= int(value.pop(0))
+        if op == "*": result *= int(value.pop(0))
+        if op == "/": result /= int(value.pop(0))
+    
+    return result
+
+def roll(self, *args):
+    for dice in args:
+        try:
+            self.write("Rolled %s and got %s.", dice, throw(dice))
+        except:
+            self.write("Unable to roll %s - invalid throw.", dice)
+    
+    return None
+
+
+
+syntax=[r'^dig(?: (\w+))?(?: (\w+))?$']
+def dig(self, name=None, direction=None):
+    try:
+        newroom = db.Room(name=Name)
+        db.session.flush()
+        db.Object.get(4).attach(newroom)
+        self.write("You have created a new room with the ID #%d.", newroom.id)
+        if direction:
+            self.do("open %s #%d" % ( newroom.id, direction ))
+    
+    except:
+        peer = self.transport.getPeer()
+        log.exception("Error during room creation by %s:%d.", peer.host, peer.port)
+        self.write("Unable to create new room.")
+    
+    return newroom
+
+
+
+syntax=[r'^open (\S+) (\S+)(?: (\w+))?']
+def open(self, direction, target, reciprocal=None):
+    try:
+        target = self.find(target, db.Room)
+        
+        newexit = db.Exit(name=direction, target=target)
+        db.session.flush()
+        self.character.location.attach(newexit)
+        
+        if reciprocal:
+            newexit = db.Exit(name=reciprocal, target=self.character.location)
+            db.session.flush()
+            target.attach(newexit)
+        
+        self.write("Your exit has been created.")
+        
+        return newexit
+            
+    except:
+        peer = self.transport.getPeer()
+        log.exception("Error during exit creation by %s:%d.", peer.host, peer.port)
+        self.write("Unable to create exit.")
+
+
+
+syntax=[r'create(?: (\w+))? (.+)$']
+def create(self, noc, n=None):
+    if not n:
+        n = noc
+        noc = "Object"
+
+    cls = getattr(db, noc)
+    
+    if not cls:
+        self.write("No such class, %s.", noc)
+        return
+    
+    obj = cls(name=n)
+    
+    db.session.flush()
+    
+    self.character.attach(obj)
+    
+    return obj
+
+
+
+syntax=[r'destroy (.+)$']
+def destroy(self, target):
+    target = self.find(target)
+    target.delete()
+    db.session.flush()
+
+
+
+syntax=[r'^(?:I )?drop(?: the| a)? (.+)$']
+def drop(self, target):
+    for obj in self.character.contents:
+        if target in obj.name:
+            self.character.location.attach(obj)
+            self.write("You dropped: %s.", obj.name)
+
+
+
