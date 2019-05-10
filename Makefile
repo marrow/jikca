@@ -56,6 +56,6 @@ public:
 release:
 	./setup.py sdist bdist_wheel ${RELEASE_OPTIONS}
 
-${PROJECT}.egg-info/PKG-INFO: setup.py setup.cfg marrow/mongo/core/release.py
+${PROJECT}.egg-info/PKG-INFO: setup.py setup.cfg jikca/release.py
 	@mkdir -p ${VIRTUAL_ENV}/lib/pip-cache
 	pip install --cache-dir "${VIRTUAL_ENV}/lib/pip-cache" -Ue ".[${USE}]"
