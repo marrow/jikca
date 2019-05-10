@@ -8,8 +8,10 @@
 *.egg-info
 .eggs
 .packaging
+third-party
 
 # Virtual Environment Pseudo-Chroot
+.venv
 bin
 include
 lib
@@ -23,6 +25,7 @@ var
 .cagoule.db
 .coverage
 .tox
+.pytest_cache
 coverage.xml
 htmlcov
 
@@ -36,4 +39,3 @@ htmlcov
 # Completion Integration
 .ropeproject
 tags
-
