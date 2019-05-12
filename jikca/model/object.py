@@ -120,4 +120,7 @@ class Object(Cached, Derived, Queryable):
 	@property
 	def siblings(self) -> Search:
 		"""Retrieve the contents of our current location excluding ourselves."""
+		if not self.location:
+			return Search()
+		
 		return Search(self.location.contents - {self})
