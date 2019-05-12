@@ -25,6 +25,10 @@ tests_require = [
 		'pytz', 'tzlocal>=1.4',  # timezone support, logger support
 	]
 
+client_requires = [
+		'urwid',
+	]
+
 
 setup(
 	name = "jikca",
@@ -80,12 +84,29 @@ setup(
 			'async-timeout',  # Timeouts on asynchronous requests.
 			'marrow.mongo',  # Data modelling and database connectivity.
 			'motor',  # Asynchonous MongoDB connectivity.
-			'WebCore>=2.0',  # Web framework.
 			'pygments',  # Syntax coloured output support.
 		],
 	
 	extras_require = dict(
-			development = tests_require + ['pre-commit', 'bandit', 'twine'],  # Development-time dependencies.
+			# Development-time dependencies.
+			development = tests_require + client_requires + [
+					'pre-commit',  # Code health.
+					'bandit',  # Security testing.
+					'twine',  # Package management.
+					'WebCore[development]>=2.0',  # Development extras from the web framework.
+				],
+			
+			# Different "roles" or reasons for installing this project.
+			client = client_requires + [],  # Client to connect to other instances of jikca.
+			server = [  # Server components to run your own jikca world.
+					'WebCore>=2.0',  # Web framework and components.
+					'web.dispatch.object',
+					'web.dispatch.resource',
+					'web.security',
+					'web.db',
+					'web.session',
+				],
+			single = client_requires + [],  # Single-player components.
 		),
 	
 	tests_require = tests_require,
