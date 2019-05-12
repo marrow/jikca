@@ -48,6 +48,16 @@ class Object(Cached, Derived, Queryable):
 	name: str = String()  # An optional identifier for humans to utilize when referencing this object in-game.
 	_location: oid = Reference('Object', name='location')  # Aliased: changing this value has behaviour; see below.
 	
+	# ### Python Methods
+	
+	def __str__(self) -> str:
+		"""If the object is to be treated as a string, what do we display?
+		
+		E.g. if you str(self), print(player), str(player.location), etc., etc.
+		"""
+		
+		return self.name
+	
 	# ### Accessor Properties
 	# Behaviours in response to self-change.
 	
