@@ -78,7 +78,6 @@ setup(
 	install_requires = [
 			'typeguard',  # Variable type annotation enforcement.
 			'apscheduler',  # Scheduled and periodic event triggering.
-			'apyio',  # Asynchronous I/O adaption of the Python io module.
 			'anyio',  # Asyncronous I/O utilities and interop.
 			'aioconsole',  # Standard input/output asynchronous wrappers.
 			'aiomonitor',  # Diagnostic utility to REPL running server.
