@@ -14,7 +14,12 @@
 
 ### Introduction & Overview
 
-TBD
+Jikca is a single- and multi-player interactive fiction framework. If you're thinking Zork or Colossal Cave Adventure,
+but with more people racooning your loot, you're right on the mark. There are various forms of these, depending on core
+functionality and focus, such as MUSH (Multi-User Shared Hallucination), MUD (Multi-User Dungeon), MUCK, MOO, etc. There
+are so many, they're often collectively abbreviated as MU*.
+
+_MC Frontalot's_ [It Is Pitch Dark](https://www.youtube.com/watch?v=4nigRT2KmCE) is the official project theme song.
 
 
 ### Requirements
