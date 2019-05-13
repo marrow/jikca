@@ -72,11 +72,29 @@ There are several different scenarios under which you might be installing and ru
 2. Only install the **client components**, not server or engine, so that you may easily connect to and participate on an instance running elsewhere.
    
    ```sh
-   pip install 'jikca[client]'
+   pip install 'jikca[client,interactive]'
+   pip install 'jikca[client,web,http]'
+   pip install 'jikca[client,web,https]'
    ```
 
-3. Only install the bare minimum required to **host a running game world**, ignoring all game client concerns.
+3. Only install the bare minimum required to **host a running game world**, ignoring all but the most minimal game client concerns.
    
    ```sh
-   pip install 'jikca[host]'
+   pip install 'jikca[server]'
    ```
+   
+   The server tag offers additional customization based on the transport you wish to offer the game over. Add these as commas-separated additions after `server` and before `]`.
+   
+   * `http` — **HTTP**, the _Hyper-Text Transport Protocol_, a text-based protocol spoken over TCP generally defaulting to port 80 on public servers, as this is the default web browsers will use if none is specified. (**Note:** Requires administrative privileges to run on ports lower than 1024.)
+   
+   * `https` — **HTTPS**, HTTP over an SSL or TLS encrypted channel, spoken over TCP defaulting to port 443. Additionally allows selection of additional protocols, such as HTTP/2 (formerly SPDY), or our telnet-like MUSH/1.
+   
+   * `rest` — **Representative State Transfer**, a standardization of the use of HTTP for transfer and management of resources ("objects") grouped into collections ("containers").
+   
+   * `rpc` — **Remote Procedure Call** Support RPC-like interactive sessions over an HTTP or WebSocket transport.
+   
+   * `ws` — **WebSockets**, expose a telnet-like interface over a WebSocket tunnel through an HTTP protocol.
+   
+   * `ssh` — **Secure SHell**, an interactive terminal experience over an encrypted channel. Permits username/password (or key-based) authentication as part of the initial connection process; no need to "log in" after connecting.
+   
+   * `tcp` — **TCP**, the _Transport Control Protocol_, a low level socket (byte stream) transport.  Telnet.
