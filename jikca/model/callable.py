@@ -1,7 +1,7 @@
 """The base definition of all invokable objects."""
 
 from re import Pattern
-from typing import AbstractSet, Optional
+from typing import AbstractSet, Optional, Tuple, Mapping
 
 from bson import ObjectId as oid
 
@@ -15,13 +15,30 @@ class Callable(Object):
 	
 	In game terms, this represents an object within the user's search path, which will recognize and match command
 	syntax. If matching, the `__call__` method is executed, at a minimum always passing the caller. Additional
-	positional arguments are provided by unnamed groups in the matching pattern, and keyword arguments (those passed
-	by name) from named groups.
+	arguments are passed by name ("keyword arguments") from text matched by the named groups within the pattern.
 	"""
 	
 	syntax: AbstractSet[Pattern] = Set(String())  # The input patterns this callable object triggers on.
 	
-	def __call__(self, caller: Object) -> Optional[str]:
+	def matches(self, invocation:str) -> Tuple[bool, Optional[Mapping[str, str]]]:
+		"""Identify if a given command invocation (user input) matches one of our syntaxes.
+		
+		Returns the matched named pattern groups
+		"""
+		for pattern in self.syntax:
+			# My kingdom for a walrus operator!
+			# if result := pattern.match(command): ...
+			
+			result = pattern.match(invocation)
+			
+			if not result:
+				continue
+			
+			return True, result.groupdict()
+		
+		return False, None
+	
+	async def __call__(self, caller: Object) -> Optional[str]:
 		pass
 
 
